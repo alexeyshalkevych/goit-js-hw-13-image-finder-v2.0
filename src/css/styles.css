@@ -45,7 +45,7 @@ body {
 .card-list {
   display: grid;
   width: 1300px;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   max-width: calc(100vw - 48px);
   grid-gap: 14px;
   padding: 0 0 5px 0;
@@ -64,7 +64,7 @@ body {
 }
 
 .card-list__image {
-  height: 150px;
+  height: 250px;
   width: 100%;
   object-fit: cover;
   transition: transform 200ms ease-in-out;
