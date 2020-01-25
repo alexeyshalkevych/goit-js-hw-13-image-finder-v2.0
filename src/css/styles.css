@@ -213,3 +213,9 @@ body {
   font-size: 14px;
 }
 
+.closedddd {
+  width: 10px;
+  height: 2px;
+  background-color: #fff;
+}
+

@@ -9,6 +9,8 @@ import PNotifyStyleMaterial from 'pnotify/dist/es/PNotifyStyleMaterial';
 import spinnerTemplate from '../templates/spinner.hbs';
 import spinner from './spinner.js';
 
+import * as basicLightbox from 'basiclightbox';
+
 class searchImageApp {
   constructor() {
     this.body = document.querySelector('body');
@@ -18,6 +20,12 @@ class searchImageApp {
     this.loadMoreBtn = null;
     this.inputValue = null;
     this.spinner = null;
+
+    //     this.instance = basicLightbox.create(`
+    //     <img src="assets/images/image.png" width="800" height="600">
+    // `);
+
+    //     instance.show();
 
     this.init();
   }
@@ -35,10 +43,20 @@ class searchImageApp {
 
     this.createDomElement(this.app, spinnerTemplate(), 'beforeend');
     this.spinner = document.querySelector('.spinner');
+
+    this.imageList.addEventListener('click', this.handlerListClick.bind(this));
   }
 
   createDomElement(insertElem, element, path) {
     insertElem.insertAdjacentHTML(path, element);
+  }
+
+  handlerListClick(e) {
+    if (e.target === e.currentTarget) {
+      return;
+    }
+
+    basicLightbox.create(`<img src="${e.target.dataset.source}">`).show();
   }
 
   handlerSubmit(event) {
@@ -77,6 +95,7 @@ class searchImageApp {
     imagesService
       .axiosImages()
       .then(data => {
+        console.log(data.hits);
         if (data.hits.length) {
           spinner.hide(this.spinner);
 
