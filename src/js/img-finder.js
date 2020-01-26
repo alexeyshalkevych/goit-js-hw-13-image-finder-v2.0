@@ -56,7 +56,7 @@ class SearchImageApp {
        * Add this: https://cors-anywhere.herokuapp.com/ before your URL 
        */
       path() {
-        return `https://pixabay.com/api/?key=14950911-bbc5df412008123c8c9940cf8&image_type=photo&orientation=horizontal&q=dog&page=${this.pageIndex}&per_page=12`;
+        return `https://cors-anywhere.herokuapp.com/https://pixabay.com/api/?key=14950911-bbc5df412008123c8c9940cf8&image_type=photo&orientation=horizontal&q=dog&page=${this.pageIndex}&per_page=12`;
       },
     });
     this.infScrollInstance.on('load', response => {
@@ -163,7 +163,7 @@ class SearchImageApp {
        * Add this: https://cors-anywhere.herokuapp.com/ before your URL 
        */
       path() {
-        return `https://pixabay.com/api/?key=14950911-bbc5df412008123c8c9940cf8&image_type=photo&orientation=horizontal&q=${SearchImageApp.query.value}&page=${this.pageIndex}&per_page=12`;
+        return `https://cors-anywhere.herokuapp.com/https://pixabay.com/api/?key=14950911-bbc5df412008123c8c9940cf8&image_type=photo&orientation=horizontal&q=${SearchImageApp.query.value}&page=${this.pageIndex}&per_page=12`;
       },
     });
 
