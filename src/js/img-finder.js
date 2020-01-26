@@ -10,7 +10,9 @@ import spinner from './spinner.js';
 import * as basicLightbox from 'basiclightbox';
 import InfiniteScroll from 'infinite-scroll';
 
-class searchImageApp {
+class SearchImageApp {
+  static query = null;
+
   constructor() {
     this.body = document.querySelector('body');
     this.app = null;
@@ -23,12 +25,6 @@ class searchImageApp {
     this.photoCards = null;
 
     this.init();
-
-    this.inputValue = this.searchForm.elements.query.value;
-
-    
-
-    // this.infScrollIns();
   }
 
   init() {
@@ -46,22 +42,27 @@ class searchImageApp {
     this.spinner = document.querySelector('.spinner');
 
     this.imageList.addEventListener('click', this.handlerListClick.bind(this));
+
+    this.createInfiniteScrollInstanse();
   }
 
-  infScrollIns() {
+  createInfiniteScrollInstanse() {
     this.infScrollInstance = new InfiniteScroll(this.imageList, {
       responseType: 'text',
       history: false,
+
+      /**
+       * For work with CORS: 
+       * Add this: https://cors-anywhere.herokuapp.com/ before your URL 
+       */
       path() {
-        return `https://cors-anywhere.herokuapp.com/https://pixabay.com/api/?key=14950911-bbc5df412008123c8c9940cf8&image_type=photo&orientation=horizontal&q=dog&page=${this.pageIndex}&per_page=12`;
+        return `https://pixabay.com/api/?key=14950911-bbc5df412008123c8c9940cf8&image_type=photo&orientation=horizontal&q=dog&page=${this.pageIndex}&per_page=12`;
       },
     });
     this.infScrollInstance.on('load', response => {
       this.photoCards = JSON.parse(response);
 
-      if (!this.photoCards.hits.length) {
-        return;
-      }
+      this.checkValidItems(this.photoCards.hits);
 
       this.proxyEl = document.createElement('div');
       this.proxyEl.innerHTML = this.createPhotoCardItems(this.photoCards.hits);
@@ -69,26 +70,24 @@ class searchImageApp {
       this.items = this.proxyEl.querySelectorAll('.card-list__item');
 
       this.infScrollInstance.appendItems(this.items);
+    });
+  }
 
-      spinner.hide(this.spinner);
-
-      PNotify.success({
-        text: 'Successful request!',
+  checkValidItems(items) {
+    if (items.length < 12 && items.length > 0) {
+      PNotify.notice({
+        text: 'It`s all!',
         styling: 'material',
         icons: 'material',
         icon: true,
-        width: '155px',
         addClass: 'pad-top',
-        delay: 2000,
+        width: '160px',
+        minHeight: '50px',
+        delay: 3000,
       });
-    });
 
-    this.infScrollInstance.on('scrollThreshold', () => {
-      spinner.show(this.spinner);
-    });
-
-    this.infScrollInstance.on('error', () => {
       spinner.hide(this.spinner);
+    } else if (!items.length) {
       PNotify.error({
         text:
           'No results were found for your request. Please enter valid data!',
@@ -100,7 +99,20 @@ class searchImageApp {
         minHeight: '120px',
         delay: 3000,
       });
-    });
+
+      spinner.hide(this.spinner);
+      return;
+    } else {
+      PNotify.success({
+        text: 'Successful request!',
+        styling: 'material',
+        icons: 'material',
+        icon: true,
+        width: '155px',
+        addClass: 'pad-top',
+        delay: 2000,
+      });
+    }
   }
 
   createPhotoCardItems(items) {
@@ -122,7 +134,6 @@ class searchImageApp {
   handlerSubmit(event) {
     event.preventDefault();
 
-
     this.input = event.currentTarget.elements.query;
 
     if (this.input.value === '') {
@@ -140,19 +151,28 @@ class searchImageApp {
       return;
     }
 
+    SearchImageApp.query = this.input;
+
     this.clearImageListItems();
 
     this.infScrollInstance.pageIndex = 1;
 
     this.infScrollInstance.option({
+      /**
+       * For work with CORS: 
+       * Add this: https://cors-anywhere.herokuapp.com/ before your URL 
+       */
       path() {
-        return `https://cors-anywhere.herokuapp.com/https://pixabay.com/api/?key=14950911-bbc5df412008123c8c9940cf8&image_type=photo&orientation=horizontal&q=${this.input.value}&page=${this.pageIndex}&per_page=12`;
+        return `https://pixabay.com/api/?key=14950911-bbc5df412008123c8c9940cf8&image_type=photo&orientation=horizontal&q=${SearchImageApp.query.value}&page=${this.pageIndex}&per_page=12`;
       },
-    }) 
+    });
+
+    this.infScrollInstance.updateGetPath();
+    this.infScrollInstance.updateGetAbsolutePath();
+
+    spinner.show(this.spinner);
 
     this.infScrollInstance.loadNextPage();
-
-    this.input.value = '';
   }
 
   clearImageListItems() {
@@ -160,4 +180,4 @@ class searchImageApp {
   }
 }
 
-new searchImageApp();
+new SearchImageApp();
