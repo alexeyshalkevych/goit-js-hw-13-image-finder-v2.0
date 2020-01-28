@@ -1,8 +1,6 @@
-import searchFormTemplate from '../templates/search-form.hbs';
 import photoCardItemTemplate from '../templates/photo-card-item.hbs';
 import PNotify from 'pnotify/dist/es/PNotify';
 import PNotifyStyleMaterial from 'pnotify/dist/es/PNotifyStyleMaterial';
-import spinnerTemplate from '../templates/spinner.hbs';
 import spinner from './spinner.js';
 
 import * as basicLightbox from 'basiclightbox';
@@ -18,7 +16,7 @@ class SearchImageApp {
     this.imageList = null;
     this.spinner = null;
     this.infScrollInstance = null;
-    this.proxyEl = null;
+    this.proxyEl = document.createElement('div');
     this.items = null;
     this.photoCards = null;
 
@@ -69,15 +67,18 @@ class SearchImageApp {
 
     const form = this.createElem('form', ['search-form', 'js-search-form']);
 
-    const inputMarkup = searchFormTemplate();
-    this.insertElement(form, inputMarkup, 'beforeend');
+    const inputMarkup = this.createElem('input', ['search-form__input']);
+
+    inputMarkup.type = 'text';
+    inputMarkup.name = 'query';
+    inputMarkup.autocomplete = 'off';
+    inputMarkup.placeholder = 'Search images...';
+
+    form.append(inputMarkup);
 
     const list = this.createElem('ul', ['card-list', 'js-card-list']);
 
-    const spin = this.createElem('div', ['spinner', 'js-spinner', 'is-hidden']);
-
-    const spinMarkup = spinnerTemplate();
-    this.insertElement(spin, spinMarkup, 'beforeend');
+    const spin = this.createSpinnerElement();
 
     appRoot.append(form, list, spin);
 
@@ -85,10 +86,26 @@ class SearchImageApp {
   }
 
   /**
-   * Method for insert markup
+   * Method create Spinner and return it
    */
-  insertElement(insertElem, markup, path) {
-    insertElem.insertAdjacentHTML(path, markup);
+  createSpinnerElement() {
+    const spinnerElement = this.createElem('div', [
+      'spinner',
+      'js-spinner',
+      'is-hidden',
+    ]);
+
+    const firstSpinnerELement = this.createElem('div', ['loader', 'first']);
+    const secondSpinnerELement = this.createElem('div', ['loader', 'second']);
+    const thirdSpinnerELement = this.createElem('div', ['loader', 'third']);
+
+    spinnerElement.append(
+      firstSpinnerELement,
+      secondSpinnerELement,
+      thirdSpinnerELement,
+    );
+
+    return spinnerElement;
   }
 
   /**
@@ -112,7 +129,6 @@ class SearchImageApp {
 
       this.checkValidItems(this.photoCards.hits);
 
-      this.proxyEl = document.createElement('div');
       this.proxyEl.innerHTML = this.createPhotoCardItems(this.photoCards.hits);
 
       this.items = this.proxyEl.querySelectorAll('.card-list__item');
@@ -177,7 +193,7 @@ class SearchImageApp {
    * Method for handler list click
    */
   handlerListClick(e) {
-    if (e.target === e.currentTarget) {
+    if (e.target.tagName !== 'IMG') {
       return;
     }
 
